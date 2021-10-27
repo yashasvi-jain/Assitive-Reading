@@ -1,7 +1,7 @@
-from nltk.tokenize import sent_tokenize
+from nltk import sent_tokenize
 
 class TextProcessing:
 
-  def text_processing(self, text: str) -> str:
+  def sentence_tokenizer(self, text):
     tokenzied_paragraph = sent_tokenize(text, language='english')
     return tokenzied_paragraph
