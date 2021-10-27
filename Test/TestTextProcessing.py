@@ -6,10 +6,17 @@ from text_processing import TextProcessing
 
 class TestTextProcessing(unittest.TestCase):
 
+    def setUp(self):
+        self._TextProcessing = TextProcessing()
+
     def test_sentence_tokenizer_for_empty_string(self):
-        result = TextProcessing.sentence_tokenizer(self, '')
+        result = self._TextProcessing.sentence_tokenizer('')
         self.assertEqual(result, [])
-        print('Success')
+
+    def test_word_tokenizer_for_a_sentence(self):
+        sentence = 'Hello World!'
+        result = self._TextProcessing.word_tokenizer(sentence)
+        self.assertEqual(result, ['hello', 'world'])
 
 if __name__ == '__main__':
     unittest.main()
