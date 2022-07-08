@@ -31,5 +31,14 @@ class TestTextProcessing(unittest.TestCase):
         result = self._TextProcessing.word_tokenizer(sentence3)
         self.assertEqual(result, ['i', 'got', 'ninety', 'nine', 'problems', 'and', 'money', 'ain\'t', 'one'])
 
+        sentence4 = 'I got 99, problems, and. money; !ain\'t one'
+        result = self._TextProcessing.word_tokenizer(sentence4)
+        self.assertEqual(result, ['i', 'got', 'ninety', 'nine', 'problems', 'and', 'money', 'ain\'t', 'one'])
+
+    def test_word_tokenizer_for_a_sentence_with_apostrophe_and_number_at_end(self):
+      sentence = '''The if condition passes in the parent process as the fork() call returns the child process\'s pid that is not equal to 0.'''
+      result = self._TextProcessing.word_tokenizer(sentence)
+      self.assertEqual(result, ['the', 'if','condition','passes','in','the','parent', 'process', 'as', 'the','fork', 'call', 'returns', 'the', 'child', "process\'s", 'pid', 'that', 'is', 'not', 'equal', 'to', 'zero'])
+
 if __name__ == '__main__':
     unittest.main()
