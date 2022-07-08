@@ -49,3 +49,6 @@ class TextProcessing:
     tokenized_sentence = list(map(lambda x: x.lower(), tokenized_sentence))
 
     return tokenized_sentence
+
+  def process_transcribed_audio(self, sentence):
+    return list(map(lambda x: x.lower(), sentence))

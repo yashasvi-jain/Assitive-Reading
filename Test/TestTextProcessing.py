@@ -40,5 +40,10 @@ class TestTextProcessing(unittest.TestCase):
       result = self._TextProcessing.word_tokenizer(sentence)
       self.assertEqual(result, ['the', 'if','condition','passes','in','the','parent', 'process', 'as', 'the','fork', 'call', 'returns', 'the', 'child', "process\'s", 'pid', 'that', 'is', 'not', 'equal', 'to', 'zero'])
 
+    def test_word_tokenizer_for_apostrophe(self):
+      sentence = "I'd rather write code."
+      result = self._TextProcessing.word_tokenizer(sentence)
+      self.assertEqual(result, ["i'd", "rather", "write", "code"])
+
 if __name__ == '__main__':
     unittest.main()

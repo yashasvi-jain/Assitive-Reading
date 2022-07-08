@@ -1,12 +1,12 @@
 import speech_recognition as sr
 
-class SpeechRecognition():
-  def __init__():
-    self._r = sr.Recognizer() 
-    slef._m = sr.Microphone()
+class SpeechRecognition:
+  def __init__(self):
+    self._r = sr.Recognizer()
+    self._m = sr.Microphone()
 
-  def transcribe():
-    with self._m as source: 
+  def transcribe(self):
+    with self._m as source:
       self._r.adjust_for_ambient_noise(source)
     with self._m as source:
       audio = self._r.listen(source)
@@ -18,4 +18,3 @@ class SpeechRecognition():
       print("Oops! Didn't catch that")
     except sr.RequestError as e:
       print("Uh oh! Couldn't request results from Google Speech Recognition service: {0}".format(e))
-        

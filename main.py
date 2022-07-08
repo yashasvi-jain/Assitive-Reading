@@ -1,11 +1,12 @@
 from src.text_processing import TextProcessing
 from src.speech_recognition import SpeechRecognition
+from catch_mistake import CatchMistake
+
+# Create instances of classes
+textProcessor = TextProcessing()
+speechRecognizer = SpeechRecognition()
 
 def main(paragraph: str):
-  # Create instances of classes
-  textProcessor = TextProcessing()
-  speechRecognizer = SpeechRecognition()
-
   # Tokenize paragraph into sentences
   sentences = textProcessor.sentence_tokenizer(paragraph)
 
@@ -13,8 +14,15 @@ def main(paragraph: str):
   driver(sentences)
 
 def driver(sentences):
+
   for sentence in sentences:
-    pass
+    recognized_audio = speechRecognizer.transcribe()
+    tokenized_sentence = textProcessor.word_tokenizer(sentence)
+    mistakeCatcher = CatchMistake(recognized_audio, tokenized_sentence)
+    result = mistakeCatcher.catch()
+
+    if not result :
+      pass
 
 if __name__ == "__main__":
   pass
