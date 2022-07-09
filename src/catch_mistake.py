@@ -1,7 +1,8 @@
 import sys
 sys.path.insert(0, '../')
 
-from db.database_manager import DatabaseManager
+#from db.database_manager import DatabaseManager
+from db.in_memory_database import InMemoryDatabase
 from helpers.utils import Utils
 
 class CatchMistake:
@@ -12,16 +13,19 @@ class CatchMistake:
     self._words_were_missed = len(self._transcribed_audio) < len(self._valid_words)
     self._words_were_added = len(self._transcribed_audio) > len(self._valid_words)
     #self._DM = DatabaseManager()
+    self._IDM = InMemoryDatabase()
     self._Utils = Utils()
 
   def catch(self):
 
+    self._IDM.createTables()
     # tp = transcribed audio pointer & vp = valid words pointer
     tp, vp = 0, 0
     wrong = []
     added = []
     missed = []
     correct = []
+    placement  = []
 
     while True:
       if tp == len(self._transcribed_audio) and vp < len(self._valid_words):
@@ -38,7 +42,11 @@ class CatchMistake:
       correct_word = self._valid_words[vp]
       if self._Utils.word_frequency(correct_word, self._transcribed_audio[tp:]) == 0:
         if self._Utils.word_frequency(self._transcribed_audio[tp], self._valid_words[vp:]) == 0:
+          wrong_word = self._transcribed_audio[tp]
+          wrong_word_count = self._Utils.word_frequency(wrong_word, self._valid_words)
           wrong.append(correct_word)
+          self._IDM.addToWrongWords(correct_word, wrong_word, wrong_word_count)
+
           tp += 1
           pass
           # The word was read incorrectly
@@ -58,7 +66,8 @@ class CatchMistake:
         else:
           if self._Utils.word_frequency(self._transcribed_audio[tp], self._valid_words[vp+1:]) > 0:
             # The word was added later
-            added.append(correct_word)
+            # added.append(correct_word)
+            placement.append(correct_word)
             temp = self._transcribed_audio[tp:].copy()
             temp.remove(correct_word)
             self._transcribed_audio = self._transcribed_audio[:tp] + temp
@@ -69,38 +78,22 @@ class CatchMistake:
             temp = self._transcribed_audio[tp:].copy()
             temp.remove(self._transcribed_audio[tp])
             self._transcribed_audio = self._transcribed_audio[:tp] + temp
-    # print('correct: ', correct)
-    # print('added: ', added)
-    # print('missed: ', missed)
-    # print('wrong: ', wrong)
+
+    print('correct:', correct)
+    print('added:', added)
+    print('missed:', missed)
+    print('wrong:', wrong)
+    print('placement', placement)
+
+    if (wrong or added or missed or placement): return False
+    return True
 
 if __name__ == '__main__':
-  # yash sid > 1 : read fist wrong and added rest: leviegh distance ~ -> true - pop all
-  # or added all - pop all
-  #if = 1: replacement - pop 1
-  # test =  ['hello',  'student'  at drexel ]
-  # valid = ['hello', am 'student' at drexel studying at drexel]
+  test = 'bhos i good good stud some some a were student'.split()
+  valid = 'i am a was good great student'.split()
 
-  # some one hello student
-  # test =  i  some * student one hello student am drexel
-  # valid = i yash am student * am drexel
-  # yash am  - missed
-  # one hello student - added
+  # test = 'i am a student at a school'.split()
+  # valid = 'i am a teacher at a university'.split()
 
-  # ls1 = ['hello', 'student', at drexel]
-  # ls2 = ['hello', 'i', 'am', 'student' at penn]
-  # test = ['hello', 'i', 'am', 'student']
-  # valid = ['hello', 'i', 'am', 'student']
-
-  # test = ['hello', 'was', 'am', 'student', 'drexel']
-  # valid = ['hello', 'i', 'am', 'student']
-
-  # test = ['hello', 'was', 'am', 'class','student']
-  # valid = ['hello', 'i', 'am', 'student', 'drexel']
-
-  # test = 'i good a student'.split()
-  # valid = 'i am a was good student'.split()
-
-  # CM = CatchMistake(test, valid)
-  # CM.catch()
+  CatchMistake(test, valid).catch()
   pass
