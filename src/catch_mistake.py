@@ -11,42 +11,96 @@ class CatchMistake:
     self._flag = 0
     self._words_were_missed = len(self._transcribed_audio) < len(self._valid_words)
     self._words_were_added = len(self._transcribed_audio) > len(self._valid_words)
-    self._DM = DatabaseManager()
+    #self._DM = DatabaseManager()
     self._Utils = Utils()
 
   def catch(self):
 
-    if self._words_were_missed:
-      words_missed = []
-      words_missed_index = []
-      for valid_word in self._valid_words:
-        if valid_word not in self._transcribed_audio:
-          words_missed.append(valid_word)
-          words_missed_index.append(self._valid_words.index(valid_word))
-      # ADD DB STROE COMMAND
+    # tp = transcribed audio pointer & vp = valid words pointer
+    tp, vp = 0, 0
+    wrong = []
+    added = []
+    missed = []
+    correct = []
 
-    elif self._words_were_added:
-      words_added = self._transcribed_audio.copy()
-      for word in self._transcribed_audio:
-        if word in self._valid_words:
-          words_added.remove(word)
-      # ADD DB STROE COMMAND
+    while True:
+      if tp == len(self._transcribed_audio) and vp < len(self._valid_words):
+        for word in self._valid_words[vp:]:
+          missed.append(word)
+        break
+      elif vp == len(self._valid_words) and tp < len(self._transcribed_audio):
+        for word in self._transcribed_audio[tp:]:
+          added.append(word)
+        break
+      elif vp == len(self._valid_words) and tp == len(self._transcribed_audio):
+        break
 
-    else:
-      for i in range(len(self._transcribed_audio)):
-        if self._transcribed_audio[i] != self._valid_words[i]:
-          self._flag = i
-          correct_word = self._valid_words[i]
-          wrong_word = self._transcribed_audio[i]
-          total_count = self._Utils.word_frequency(correct_word, self._valid_words)
+      correct_word = self._valid_words[vp]
+      if self._Utils.word_frequency(correct_word, self._transcribed_audio[tp:]) == 0:
+        if self._Utils.word_frequency(self._transcribed_audio[tp], self._valid_words[vp:]) == 0:
+          wrong.append(correct_word)
+          tp += 1
+          pass
+          # The word was read incorrectly
+        else:
+          missed.append(correct_word)
+          # The word has been missed
+          pass
+        vp += 1
 
-          # Insert/Update row in WrongWords Table
-          self._DM.addToWrongWords(correct_word, wrong_word, total_count)
+        pass
+      else:
+        if self._transcribed_audio[tp] == self._valid_words[vp]:
+          # Read correctly
+          correct.append(correct_word)
+          tp += 1
+          vp += 1
+        else:
+          if self._Utils.word_frequency(self._transcribed_audio[tp], self._valid_words[vp+1:]) > 0:
+            # The word was added later
+            added.append(correct_word)
+            temp = self._transcribed_audio[tp:].copy()
+            temp.remove(correct_word)
+            self._transcribed_audio = self._transcribed_audio[:tp] + temp
+            vp += 1
+            pass
+          else:
+            added.append(self._transcribed_audio[tp])
+            temp = self._transcribed_audio[tp:].copy()
+            temp.remove(self._transcribed_audio[tp])
+            self._transcribed_audio = self._transcribed_audio[:tp] + temp
+    # print('correct: ', correct)
+    # print('added: ', added)
+    # print('missed: ', missed)
+    # print('wrong: ', wrong)
 
 if __name__ == '__main__':
-  # ls1 = ['hello', 'i', 'am', 'student']
-  # ls2 = ['hello', 'i', 'am', 'teacher']
+  # yash sid > 1 : read fist wrong and added rest: leviegh distance ~ -> true - pop all
+  # or added all - pop all
+  #if = 1: replacement - pop 1
+  # test =  ['hello',  'student'  at drexel ]
+  # valid = ['hello', am 'student' at drexel studying at drexel]
 
-  # CM = CatchMistake(ls1, ls2)
+  # some one hello student
+  # test =  i  some * student one hello student am drexel
+  # valid = i yash am student * am drexel
+  # yash am  - missed
+  # one hello student - added
+
+  # ls1 = ['hello', 'student', at drexel]
+  # ls2 = ['hello', 'i', 'am', 'student' at penn]
+  # test = ['hello', 'i', 'am', 'student']
+  # valid = ['hello', 'i', 'am', 'student']
+
+  # test = ['hello', 'was', 'am', 'student', 'drexel']
+  # valid = ['hello', 'i', 'am', 'student']
+
+  # test = ['hello', 'was', 'am', 'class','student']
+  # valid = ['hello', 'i', 'am', 'student', 'drexel']
+
+  # test = 'i good a student'.split()
+  # valid = 'i am a was good student'.split()
+
+  # CM = CatchMistake(test, valid)
   # CM.catch()
   pass

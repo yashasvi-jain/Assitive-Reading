@@ -1,9 +1,13 @@
+# import sys
+# sys.path.insert(0, '../')
+
 import sqlite3 as sl
-conn = sl.connect('AssistiveReading.db')
+conn = sl.connect('../db/AssistiveReading.db')
 c = conn.cursor()
 
 class DatabaseManager:
     def __init__(self):
+        #sl.connect('AssistiveReading.db')
         pass
 
     def createTables(self):
