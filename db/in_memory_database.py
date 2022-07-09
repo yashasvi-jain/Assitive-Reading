@@ -2,7 +2,7 @@ import sqlite3 as sl
 
 class InMemoryDatabase:
     def __init__(self):
-        self._conn = sl.connect(':memory:')
+        self._conn = sl.connect("../db/temporary.db")
         self._c = self._conn.cursor()
 
     def createTables(self):
