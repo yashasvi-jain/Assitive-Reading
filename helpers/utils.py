@@ -1,11 +1,11 @@
 import re
 import os
 import numpy as np
-import tensorflow as tf
 import tensorflow_hub as hub
-
 import sys
+
 sys.path.insert(0, '../')
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
 
@@ -21,11 +21,15 @@ class Utils:
 
     def sentence_similarity(self, sentence1, sentence2):
         messages = [sentence1, sentence2]
-
         embeddings_matrix = embed(messages)
-        #np.inner(embeddings_matrix, embeddings_matrix)
-        print(np.inner(embeddings_matrix, embeddings_matrix))
+        similarity_matrix = np.inner(embeddings_matrix, embeddings_matrix)
+
+        return similarity_matrix[0][1:]
+
+    def remove_word_from_sentence(self, sentence, pointer):
+        temp = sentence[pointer:].copy()
+        temp.remove(sentence[pointer])
+        return sentence[:pointer] + temp
 
 if __name__ == '__main__':
-    u = Utils()
-    u.sentence_similarity('Sid is gay', 'Sid was gay')
+    pass

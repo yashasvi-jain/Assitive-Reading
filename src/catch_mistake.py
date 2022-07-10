@@ -1,6 +1,4 @@
 import sys
-import Levenshtein as lev
-import scipy.special as sp
 sys.path.insert(0, '../')
 
 #from db.database_manager import DatabaseManager
@@ -15,106 +13,113 @@ class CatchMistake:
     self._words_were_missed = len(self._transcribed_audio) < len(self._valid_words)
     self._words_were_added = len(self._transcribed_audio) > len(self._valid_words)
     #self._DM = DatabaseManager()
-    self._IDM = InMemoryDatabase()
+    #self._IDM = InMemoryDatabase()
     self._Utils = Utils()
 
   def catch(self):
+    audio = self._transcribed_audio
+    valid = self._valid_words
+    word_frequency = self._Utils.word_frequency
+    sentece_similarity = self._Utils.sentence_similarity
+    word_remover = self._Utils.remove_word_from_sentence
+    #self._IDM.createTables()
 
-    self._IDM.createTables()
     # tp = transcribed audio pointer & vp = valid words pointer
     tp, vp = 0, 0
     wrong = []
     added = []
     missed = []
-    missed_index = []
     correct = []
     placement  = []
 
-    # while True:
-    #   if tp == len(self._transcribed_audio) and vp < len(self._valid_words):
-    #     for word in self._valid_words[vp:]:
-    #       missed.append(word)
-    #     break
-    #   elif vp == len(self._valid_words) and tp < len(self._transcribed_audio):
-    #     for word in self._transcribed_audio[tp:]:
-    #       added.append(word)
-    #     break
-    #   elif vp == len(self._valid_words) and tp == len(self._transcribed_audio):
-    #     break
+    while True:
+      if tp == len(audio) and vp < len(valid):
+        for word in valid[vp:]:
+          missed.append(word)
+        break
+      elif vp == len(valid) and tp < len(audio):
+        for word in audio[tp:]:
+          added.append(word)
+        break
+      elif vp == len(valid) and tp == len(audio):
+        break
 
-    #   correct_word = self._valid_words[vp]
-    #   if self._Utils.word_frequency(correct_word, self._transcribed_audio[tp:]) == 0:
-    #     if self._Utils.word_frequency(self._transcribed_audio[tp], self._valid_words[vp:]) == 0:
-    #       wrong_word = self._transcribed_audio[tp]
-    #       correct_word_count = self._Utils.word_frequency(correct_word, self._valid_words)
-    #       dist = []
-    #       for word in self._transcribed_audio[tp:]:
-    #         if word not in self._valid_words[vp:]:
-    #           dist.append(lev.distance(correct_word, word))
-    #       print(sp.softmax(dist))
-    #       wrong.append(correct_word)
-    #       self._IDM.addToWrongWords(correct_word, wrong_word, correct_word_count)
+      correct_word = valid[vp]
+      if correct_word not in audio[tp:]:
+        word_in_audio = audio[tp]
 
-    #       tp += 1
-    #       pass
-    #       # The word was read incorrectly
-    #     else:
-    #       missed.append(correct_word)
-    #       # The word has been missed
-    #       pass
-    #     vp += 1
+        if word_in_audio not in valid:
+          # Could be an insertion or a replacement
 
-    #     pass
-    #   else:
-    #     if self._transcribed_audio[tp] == self._valid_words[vp]:
-    #       # Read correctly
-    #       correct.append(correct_word)
-    #       tp += 1
-    #       vp += 1
-    #     else:
-    #       if self._Utils.word_frequency(self._transcribed_audio[tp], self._valid_words[vp+1:]) > 0:
-    #         # The word was added later
-    #         # added.append(correct_word)
-    #         placement.append(correct_word)
-    #         temp = self._transcribed_audio[tp:].copy()
-    #         temp.remove(correct_word)
-    #         self._transcribed_audio = self._transcribed_audio[:tp] + temp
-    #         vp += 1
-    #         pass
-    #       else:
-    #         added.append(self._transcribed_audio[tp])
-    #         temp = self._transcribed_audio[tp:].copy()
-    #         temp.remove(self._transcribed_audio[tp])
-    #         self._transcribed_audio = self._transcribed_audio[:tp] + temp
+          # SIMILARITY CHECK
+          better_replacement = False
+          temp = self._valid_words.copy()
+          temp[vp] = word_in_audio
+          temp = ' '.join(temp)
+          similarity = sentece_similarity(temp, ' '.join(self._valid_words))
 
-    for i in range(len(self._valid_words)):
-      if self._valid_words[i] not in self._transcribed_audio:
-        missed.append(self._valid_words[i])
-        missed_index.append(i)
+          for word in audio[tp+1:]:
+            temp = valid.copy()
+            temp[vp] = word
+            temp = ' '.join(temp)
+            sim = sentece_similarity(temp, ' '.join(self._valid_words))
+            if sim > similarity:
+              better_replacement = True
+              break
 
-    for word in self._transcribed_audio:
-      if word not in self._valid_words:
-        added.append(word)
+          if better_replacement:
+            # The word has been added
+            added.append(word_in_audio)
+            audio = word_remover(audio, tp)
 
+          else:
+            # The word has been replaced
+            wrong.append(word_in_audio)
+            tp += 1
+            vp += 1
+        else:
+          # The word has been missed
+          missed.append(correct_word)
+          vp += 1
+      else:
+        if audio[tp] == valid[vp]:
+          # Read correctly
+          correct.append(correct_word)
+          tp += 1
+          vp += 1
+        else:
+          if word_frequency(audio[tp], valid[vp+1:]) > 0:
+            # Placement error
+            placement.append(correct_word)
+            temp = audio[tp:].copy()
+            temp.remove(correct_word)
+            audio = audio[:tp] + temp
+            vp += 1
+            pass
+          else:
+            # The word has been added
+            added.append(audio[tp])
+            audio = word_remover(audio, tp)
+
+    print()
+    print('RESULTS\n-------')
     print('correct:', correct)
     print('added:', added)
     print('missed:', missed)
-    print('wrong:', wrong)
+    print('replacement:', wrong)
     print('placement', placement)
 
-    self._IDM.closeConnection()
+    #self._IDM.closeConnection()
 
     if (wrong or added or missed or placement): return False
     return True
 
 if __name__ == '__main__':
-  # test = 'bhos i good good stud some some a were student'.split()
-  # valid = 'i am a was good great student'.split()
 
   # test = 'i am a student at a school'.split()
   # valid = 'i am a teacher at a university'.split()
 
-  test = 'the actor is charming accusative case marker the audience'.split()
+  test = 'the actor is charming accusative marker case audience'.split()
   valid = 'the actor charmed accusative case marker the audience'.split()
 
   CatchMistake(test, valid).catch()
