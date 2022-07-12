@@ -22,6 +22,9 @@ class CatchMistake:
     sentece_similarity = self._Utils.sentence_similarity
     word_remover = self._Utils.remove_word_from_sentence
 
+    tempDB = self._tempDB
+    tempDB.create_tables()
+
     # tp = transcribed audio pointer & vp = valid words pointer
     tp, vp = 0, 0
     wrong = []
@@ -73,6 +76,8 @@ class CatchMistake:
           else:
             # The word has been replaced
             wrong.append(word_in_audio)
+            wrong_word_occourence = word_frequency(word_in_audio, valid)
+            tempDB.add_to_replacements(correct_word, word_in_audio, wrong_word_occourence)
             tp += 1
             vp += 1
         else:
@@ -99,32 +104,18 @@ class CatchMistake:
             added.append(audio[tp])
             audio = word_remover(audio, tp)
 
-    print()
-    print('RESULTS\n-------')
-    print('correct:', correct)
-    print('added:', added)
-    print('missed:', missed)
-    print('replacement:', wrong)
-    print('placement', placement)
+    # print()
+    # print('RESULTS\n-------')
+    # print('correct:', correct)
+    # print('added:', added)
+    # print('missed:', missed)
+    # print('replacement:', wrong)
+    # print('placement', placement)
 
     #self._IDM.closeConnection()
 
-    if (wrong or added or missed or placement): return False
-    return True
+    # if (wrong or added or missed or placement): return False
+    # return True
 
 if __name__ == '__main__':
-
-  # test = 'i am a student at a school'.split()
-  # valid = 'i am a teacher at a university'.split()
-
-  # test = 'the actor is charming accusative marker case audience'.split()
-  # valid = 'the actor charmed accusative case marker the audience'.split()
-
-  # test = 'i knew the teacher that the girl adores her'.split()
-  # valid = 'the teacher knew that the girl adores her'.split()
-
-  test = 'yosi noticed that michal was offended'.split()
-  valid = 'yosi fell asleep and michal was offended'.split()
-
-  CatchMistake(test, valid).catch()
   pass
