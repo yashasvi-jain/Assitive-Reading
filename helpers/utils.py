@@ -20,6 +20,11 @@ class Utils:
         return text.count(word)
 
     def sentence_similarity(self, sentence1, sentence2):
+        """
+        Creates node-embeddings of the size 2 X 512 using the google-universal-sentence-encoder.
+        The similarity matirx is evaluated by calculating the inner product of the node-embeddings by itself.
+        Parameters: {str, str} - first sentence, second sentence it is being compared to.
+        """
         messages = [sentence1, sentence2]
         embeddings_matrix = embed(messages)
         similarity_matrix = np.inner(embeddings_matrix, embeddings_matrix)

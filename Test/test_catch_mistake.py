@@ -17,7 +17,7 @@ class TestCatchMistake(unittest.TestCase):
         valid = ['i', 'am', 'a', 'student']
         CM = CatchMistake(test, valid)
         self.assertFalse(CM.catch())
-  
+
     def test1(self):
         test = 'i knew the teacher that the girl adores her'.split()
         valid = 'the teacher knew that the girl adores her'.split()

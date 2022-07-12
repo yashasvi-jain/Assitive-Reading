@@ -1,19 +1,18 @@
 import sys
 sys.path.insert(0, '../')
 
-#from db.database_manager import DatabaseManager
-from db.in_memory_database import InMemoryDatabase
+from db.database_manager import DatabaseManager
 from helpers.utils import Utils
 
 class CatchMistake:
-  def __init__(self, transcribed_audio: list, valid_words: list):
+  def __init__(self, transcribed_audio: list, valid_words: list, tempDB: DatabaseManager):
     self._transcribed_audio = transcribed_audio
     self._valid_words = valid_words
     self._flag = 0
     self._words_were_missed = len(self._transcribed_audio) < len(self._valid_words)
     self._words_were_added = len(self._transcribed_audio) > len(self._valid_words)
-    #self._DM = DatabaseManager()
-    #self._IDM = InMemoryDatabase()
+    #self._DM = DatabaseManager('../db/AssistiveReading.db')
+    self._tempDB = tempDB
     self._Utils = Utils()
 
   def catch(self):
@@ -22,7 +21,6 @@ class CatchMistake:
     word_frequency = self._Utils.word_frequency
     sentece_similarity = self._Utils.sentence_similarity
     word_remover = self._Utils.remove_word_from_sentence
-    #self._IDM.createTables()
 
     # tp = transcribed audio pointer & vp = valid words pointer
     tp, vp = 0, 0
@@ -119,8 +117,14 @@ if __name__ == '__main__':
   # test = 'i am a student at a school'.split()
   # valid = 'i am a teacher at a university'.split()
 
-  test = 'the actor is charming accusative marker case audience'.split()
-  valid = 'the actor charmed accusative case marker the audience'.split()
+  # test = 'the actor is charming accusative marker case audience'.split()
+  # valid = 'the actor charmed accusative case marker the audience'.split()
+
+  # test = 'i knew the teacher that the girl adores her'.split()
+  # valid = 'the teacher knew that the girl adores her'.split()
+
+  test = 'yosi noticed that michal was offended'.split()
+  valid = 'yosi fell asleep and michal was offended'.split()
 
   CatchMistake(test, valid).catch()
   pass
