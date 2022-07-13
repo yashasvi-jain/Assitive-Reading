@@ -1,18 +1,19 @@
 import sys
+import requests
 sys.path.insert(0, '../')
 
 from db.database_manager import DatabaseManager
 from helpers.utils import Utils
+from helpers.format_mistakes_data import FormatMistakesData
 
 class CatchMistake:
-  def __init__(self, transcribed_audio: list, valid_words: list, tempDB: DatabaseManager):
+  def __init__(self, transcribed_audio: list, valid_words: list):
     self._transcribed_audio = transcribed_audio
     self._valid_words = valid_words
     self._flag = 0
     self._words_were_missed = len(self._transcribed_audio) < len(self._valid_words)
     self._words_were_added = len(self._transcribed_audio) > len(self._valid_words)
     #self._DM = DatabaseManager('../db/AssistiveReading.db')
-    self._tempDB = tempDB
     self._Utils = Utils()
 
   def catch(self):
@@ -21,9 +22,7 @@ class CatchMistake:
     word_frequency = self._Utils.word_frequency
     sentece_similarity = self._Utils.sentence_similarity
     word_remover = self._Utils.remove_word_from_sentence
-
-    tempDB = self._tempDB
-    tempDB.create_tables()
+    temp_data =  FormatMistakesData()
 
     # tp = transcribed audio pointer & vp = valid words pointer
     tp, vp = 0, 0
@@ -70,30 +69,34 @@ class CatchMistake:
 
           if better_replacement:
             # The word has been added
-            added.append(word_in_audio)
+            # REMOVE added.append(word_in_audio)
+            temp_data.catch_insertions(word_in_audio)
             audio = word_remover(audio, tp)
 
           else:
             # The word has been replaced
-            wrong.append(word_in_audio)
+            # REMOVE wrong.append(word_in_audio)
             wrong_word_occourence = word_frequency(word_in_audio, valid)
-            tempDB.add_to_replacements(correct_word, word_in_audio, wrong_word_occourence)
+            temp_data.catch_replacements(word_in_audio, vp)
+            # REMOVE tempDB.add_to_replacements(correct_word, word_in_audio, wrong_word_occourence)
             tp += 1
             vp += 1
         else:
           # The word has been missed
-          missed.append(correct_word)
+          # REMOVE missed.append(correct_word)
+          temp_data.catch_omission(correct_word, vp)
           vp += 1
       else:
         if audio[tp] == valid[vp]:
           # Read correctly
-          correct.append(correct_word)
+          # REMOVE correct.append(correct_word)
           tp += 1
           vp += 1
         else:
           if word_frequency(audio[tp], valid[vp+1:]) > 0:
             # Placement error
-            placement.append(correct_word)
+            # REMOVE placement.append(correct_word)
+            temp_data.catch_misplacement(correct_word)
             temp = audio[tp:].copy()
             temp.remove(correct_word)
             audio = audio[:tp] + temp
@@ -101,19 +104,12 @@ class CatchMistake:
             pass
           else:
             # The word has been added
-            added.append(audio[tp])
+            # REMOVE added.append(audio[tp])
+            temp_data.catch_insertions(audio[tp])
             audio = word_remover(audio, tp)
 
-    # print()
-    # print('RESULTS\n-------')
-    # print('correct:', correct)
-    # print('added:', added)
-    # print('missed:', missed)
-    # print('replacement:', wrong)
-    # print('placement', placement)
-
-    #self._IDM.closeConnection()
-
+    json_temp_data = temp_data.toJSONString()
+    #res = requests.post('http://localhost:4000/send?data={}'.format(json_temp_data))
     # if (wrong or added or missed or placement): return False
     # return True
 
