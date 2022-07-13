@@ -1,4 +1,3 @@
-from dataclasses import replace
 import sys
 sys.path.insert(0, '../')
 
@@ -57,17 +56,25 @@ class TestCatchMistake(unittest.TestCase):
 
         self.assertEqual(replacements, expected_replacements)
 
-    # def test3(self):
-    #     tempDB = DatabaseManager('../db/temp.db')
+    def test3(self):
+        tempDB = DatabaseManager('../db/temp.db')
 
-    #     test = 'the actor is charming accusative case marker the audience'.split()
-    #     valid = 'the actor charmed accusative case marker the audience'.split()
-    #     CM = CatchMistake(test, valid)
-    #     correct = 'the actor accusative case marker the audience'.split()
-    #     added = ['is']
-    #     missed = []
-    #     wrong = ['charmed']
-    #     placement = []
+        test = 'the actor is charming accusative case marker the audience'.split()
+        valid = 'the actor charmed accusative case marker the audience'.split()
+        CM = CatchMistake(test, valid, tempDB).catch()
+        correct = 'the actor accusative case marker the audience'.split()
+        added = ['is']
+        missed = []
+        wrong = ['charmed']
+        placement = []
+
+        expected_replacements = [['charmed', 'charming']]
+
+        replacements = tempDB.retrieve_replacements()
+        tempDB.purge_table('Replacements')
+        tempDB.closeConnection()
+
+        self.assertEqual(replacements, expected_replacements)
 
     # def test4(self):
     #     tempDB = DatabaseManager('../db/temp.db')
