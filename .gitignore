@@ -131,5 +131,5 @@ dmypy.json
 # Database instances
 *.db
 
-# Node API stuff
+# Node modules
 ReadEasy.API/node_modules
