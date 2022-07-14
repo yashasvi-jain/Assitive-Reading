@@ -5,6 +5,11 @@ export const navigation = [
     icon: 'home'
   },
   {
+    text: 'Reading',
+    path: '/reading',
+    icon: 'blockquote'
+  },
+  {
     text: 'Examples',
     icon: 'folder',
     items: [
