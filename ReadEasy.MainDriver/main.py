@@ -1,6 +1,7 @@
 from src.text_processing import TextProcessing
 from src.speech_recognition import SpeechRecognition
-from catch_mistake import CatchMistake
+from src.catch_mistake import CatchMistake
+from sockets.socket_manager import SocketManager
 
 # Create instances of classes
 textProcessor = TextProcessing()
@@ -25,4 +26,5 @@ def driver(sentences):
       pass
 
 if __name__ == "__main__":
+  SocketManager()
   pass

@@ -24,7 +24,8 @@ app.post("/send", (req, res) => {
     res.status(200).send();
 })
 
-io.on('connection', (socket) => {
+io.of('/main').on('connection', (socket) => {
+    // On connecting invoke the driver function to start the reading process
     console.log('SOCKET')
     socket.emit('catchMistake', 10)
 })
