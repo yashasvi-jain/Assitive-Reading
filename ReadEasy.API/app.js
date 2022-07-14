@@ -68,7 +68,7 @@ app.post("/send", (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('SOCKET')
-    server.emit('CatchMistake')
+    socket.emit('catchMistake', 10)
 })
 
 app.get("*", (req, res) => {
