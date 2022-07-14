@@ -132,4 +132,4 @@ dmypy.json
 *.db
 
 # Node modules
-ReadEasy.API/node_modules
+ReadEasy.Server/node_modules
