@@ -1,22 +1,27 @@
+// #region Imports
+
+// Server Modules
 const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
+
+// Swagger Modules
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
+const docs = require('./docs')
 
-const swaggerDefinition = require('./docs/swaggerDefinitions')
-const swaggerOptions = {
-    swaggerDefinition,
-    apis: ['./src/routes/**.js']
-}
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
+// DB init
+//require('./db/mongoose')
 
+// Routers
 const userRouter = require('./routes/users')
+
+// #endregion
 
 const app = express()
 app.use(express.json())
 app.use(userRouter)
-app.use('/api', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
+app.use('/api', swaggerUI.serve, swaggerUI.setup(docs))
 
 const server = http.createServer(app)
 const io = socketio(server)
