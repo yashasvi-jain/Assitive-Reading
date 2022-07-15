@@ -1,28 +1,27 @@
 const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
+const swaggerJsDoc = require('swagger-jsdoc')
+const swaggerUI = require('swagger-ui-express')
+
+const swaggerDefinition = require('./docs/swaggerDefinitions')
+const swaggerOptions = {
+    swaggerDefinition,
+    apis: ['./src/routes/**.js']
+}
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+const userRouter = require('./routes/users')
 
 const app = express()
 app.use(express.json())
+app.use(userRouter)
+app.use('/api', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
+
 const server = http.createServer(app)
 const io = socketio(server)
 
 const port = process.env.PORT || 4000
-
-/**
- * @swagger
- * /send:
- *  post:
- *      tags: [Data]
- *      description: Use to request data
- *      responses:
- *          '200':
- *              description: Successful
- */
-app.post("/send", (req, res) => {
-    console.log(req.query.data);
-    res.status(200).send();
-})
 
 io.of('/main').on('connection', (socket) => {
     // On connecting invoke the driver function to start the reading process

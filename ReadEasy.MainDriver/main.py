@@ -26,5 +26,6 @@ def driver(sentences):
       pass
 
 if __name__ == "__main__":
-  SocketManager()
+  socket = SocketManager()
+  socket.init_main_socket()
   pass
