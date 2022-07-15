@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const Mistakes = mongoose.model('Mistakes', {
+const MistakesDTOSchema = mongoose.Schema({
     replacements: {
         type: mixed,
     },
@@ -13,6 +13,10 @@ const Mistakes = mongoose.model('Mistakes', {
     misplacements: {
         type: Array
     }
+}, {
+    timestamps: true
 })
+
+const Mistakes = mongoose.model('Mistakes', MistakesDTOSchema)
 
 module.exports = Mistakes
