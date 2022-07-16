@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/users')
 const auth = require('../middleware/auth')
 const router = new express.Router()
+const { spwan } = require('child_process')
 
 // User login endpoint
 router.post('/users/login', async (req, res) => {
@@ -41,6 +42,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 // Retrieve list of all users
 router.get('/users', async (req, res) => {
     try {
+        // spwan('python3', ['../../ReadEasy.MainDriver/main.py'])
         return res.status(200).send("Hello")
     } catch (e) {
         res.sendStatus(500)

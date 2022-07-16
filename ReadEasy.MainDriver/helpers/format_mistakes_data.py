@@ -26,4 +26,7 @@ class FormatMistakesData():
             'omissions': self._omissions,
             'misplacements': self._misplacement
         }
-        return json.dumps(data)
+        read_correctly = False
+        if len(self._replacements) + len(self._insertions) + len(self._omissions) + len(self._misplacement)== 0:
+            read_correctly = True
+        return json.dumps(data), read_correctly

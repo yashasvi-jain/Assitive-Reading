@@ -1,5 +1,5 @@
 import sys
-import requests
+import socketio
 sys.path.insert(0, '../')
 
 from db.database_manager import DatabaseManager
@@ -34,12 +34,14 @@ class CatchMistake:
 
     while True:
       if tp == len(audio) and vp < len(valid):
-        for word in valid[vp:]:
-          missed.append(word)
+        for i, word in enumerate(valid[vp:]):
+          temp_data.catch_omission(word, i)
+          # REMOVE missed.append(word)
         break
       elif vp == len(valid) and tp < len(audio):
-        for word in audio[tp:]:
-          added.append(word)
+        for i, word in enumerate(audio[tp:]):
+          temp_data.catch_insertions(word)
+          # added.append(word)
         break
       elif vp == len(valid) and tp == len(audio):
         break
@@ -108,10 +110,9 @@ class CatchMistake:
             temp_data.catch_insertions(audio[tp])
             audio = word_remover(audio, tp)
 
-    json_temp_data = temp_data.toJSONString()
-    #res = requests.post('http://localhost:4000/send?data={}'.format(json_temp_data))
-    # if (wrong or added or missed or placement): return False
-    # return True
+    json_temp_data, read_correctly = temp_data.toJSONString()
+
+    return json_temp_data, read_correctly
 
 if __name__ == '__main__':
   pass

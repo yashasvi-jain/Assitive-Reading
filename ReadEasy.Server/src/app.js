@@ -16,6 +16,9 @@ const docs = require('./docs')
 // Routers
 const userRouter = require('./routes/users')
 
+// Other stuff
+const {spawn} = require('child_process')
+
 // #endregion
 
 const app = express()
@@ -30,8 +33,11 @@ const port = process.env.PORT || 4000
 
 io.of('/main').on('connection', (socket) => {
     // On connecting invoke the driver function to start the reading process
-    console.log('SOCKET')
-    socket.emit('catchMistake', 10)
+    console.log('Connected to Main Namespace')
+    socket.emit('read', 'This is the paragraph.')
+    socket.on('transfer', (data) => {
+        console.log(data)
+    })
 })
 
 app.get("*", (req, res) => {
@@ -41,3 +47,8 @@ app.get("*", (req, res) => {
 server.listen(port, () => {
     console.log(`Server listening on port ${port}`)
 })
+
+// const main = async () => {
+//     const python = spawn('python3', ['../ReadEasy.MainDriver/main.py'])
+// }
+// main()

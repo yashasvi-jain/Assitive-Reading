@@ -11,13 +11,11 @@ class Utils:
     def __init__(self):
         self._embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
 
-    # Returns the frequency of a word in a list
-    def word_frequency(self, word: str, text: list) -> int:
+    # Returns the frequency of a word in a string or list
+    def word_frequency(self, word: str, text: str | list) -> int:
+        if isinstance(text, str):
+            return sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(word), text))
         return text.count(word)
-
-    # Returns the frequency of a word in a string
-    def word_frequency(self, word: str, text: str) -> int:
-        return sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(word), text))
 
     def sentence_similarity(self, sentence1, sentence2):
         """

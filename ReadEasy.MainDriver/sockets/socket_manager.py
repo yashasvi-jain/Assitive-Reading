@@ -4,12 +4,12 @@ from sockets.mistakes_namespace import MistakesNamespace
 
 class SocketManager():
     def __init__(self) -> None:
-        self._sio = socketio.Client()
-        self._sio.register_namespace(MainNamespace('/main'))
-        self._sio.register_namespace(MistakesNamespace('/mistakes'))
+        self.sio = socketio.Client()
+        self.sio.register_namespace(MainNamespace('/main'))
+        self.sio.register_namespace(MistakesNamespace('/mistakes'))
 
     def init_main_socket(self):
-        self._sio.connect('http://localhost:4000', '/main')
+        self.sio.connect('http://localhost:4000', namespaces=['/main'])
 
     def init_mistakes_socket(self):
-        self._sio.connect('http://localhost:4000', '/mistakes')
+        self.sio.connect('http://localhost:4000', '/mistakes')
