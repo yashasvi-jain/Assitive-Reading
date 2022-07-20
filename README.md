@@ -1,1 +1,1 @@
-# Assitive-Reading
+# ReadEasy
